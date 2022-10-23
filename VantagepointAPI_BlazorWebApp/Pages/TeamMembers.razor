@@ -1,0 +1,73 @@
+﻿@page "/teammembers/{WBS1}"
+
+@using VantagepointAPI_BlazorWebApp.Models
+@inject VantagepointAPIService APIService
+
+<div class="container-fluid">
+    <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="display-4">Projects List</h1>
+        <p class="lead">
+            This page shows a number of team members of the project. You can edit the dates here
+        </p>
+    </div>
+    <hr />
+
+        <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered table-sm table-hover">
+                <thead>
+                    <tr>
+                        <td>WBS1</td>
+                        <td>Employee</td>
+                        <td>Team Status</td>
+                        <td>Role</td>
+                        <td>Role Description</td>
+                        <td>Start Date</td>
+                        <td>End Date</td>
+                        <td>Record ID</td>
+                        <td>test update</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in teamsList)
+                    {
+                    <tr>
+                        <td>@item.WBS1</td>
+                        <td>@item.Employee</td>
+                        <td>@item.TeamStatus</td>
+                        <td>@item.Role</td>
+                        <td>@item.RoleDescription</td>
+                        <td>@item.StartDate</td>
+                        <td>@item.EndDate</td>
+                        <td>@item.RecordID</td>
+                        <td>
+                            <button class="btn btn-block btn-primary"
+                            @onclick="@(() => UpdateRoleDescription(item))"
+                            type="button">update description</button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string WBS1 { get; set; }
+
+    private ProjectTeamsResponse teamsList { get; set; } = new ProjectTeamsResponse();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        teamsList = await APIService.getProjectTeams(WBS1);
+    }
+
+
+    protected async Task UpdateRoleDescription(ProjectTeamResponse item)
+    {
+        await APIService.updateRoleDescription(item, "Updated" + item.RoleDescription); 
+    }
+}

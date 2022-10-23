@@ -1,0 +1,77 @@
+﻿@page "/listprojects"
+
+@using VantagepointAPI_BlazorWebApp.Models
+@inject VantagepointAPIService APIService
+
+<div class="container-fluid">
+    <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="display-4">Projects List</h1>
+        <p class="lead">
+            Enter a portion of the project name and show a list of results
+        </p>
+    </div>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-10">
+            <div class="form-group">
+                <label name="SearchText" class="control-label">Search Project Name</label>
+                <input name="SearchText" class="form-control" @bind="searchText" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label name="limit" class="control-label">Limit Result</label>
+                <input name="limit" class="form-control" @bind="limit" />
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <button class="btn btn-primary" @onclick="Search">Search</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered table-sm table-hover">
+                <thead>
+                    <tr>
+                        <td>WBS1</td>
+                        <td>Name</td>
+                        <td>LongName</td>
+                        <td>Show Team Members</td>
+                        <td>Add Comment</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in projectList)
+                    {
+                    <tr>
+                        <td>@item.WBS1</td>
+                        <td>@item.Name</td>
+                        <td>@item.LongName</td>
+                            <td><a href="/teammembers/@item.WBS1">show team members</a></td>
+                            <td><a href="/addcomment/@item.WBS1">add comment</a></td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    private ProjectsResponse projectList { get; set; } = new ProjectsResponse();
+    private string searchText { get; set; } = "";
+    private int limit { get; set; } = 10;
+
+    private async Task Search()
+    {
+        projectList = await APIService.searchProjects(searchText, limit);
+    }
+}

@@ -1,0 +1,124 @@
+﻿@page "/addcomment/{WBS1}"
+
+@using VantagepointAPI_BlazorWebApp.Models
+@inject VantagepointAPIService APIService
+
+<div class="container-fluid">
+    <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="display-4">Add A Custom Comment</h1>
+        <p class="lead">
+            Comments are added to the user defined hub "Comments". Please
+            make sure that the hub has been created and has the following
+            fields:
+        </p>
+        <ul class="lead">
+            <li>Number (Default)</li>
+            <li>Name (Default)</li>
+            <li>Project (Type: Project)</li>
+            <li>Email (Type: Character)</li>
+            <li>Comment (Type: Memo)</li>
+        </ul>
+    </div>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label name="Number" class="control-label">Number</label>
+                <input name="Number" class="form-control" @bind="comment.CustNumber" />
+            </div>
+
+            <div class="form-group">
+                <label name="name" class="control-label">Name</label>
+                <input name="name" class="form-control" @bind="comment.CustName" />
+            </div>
+
+            <div class="form-group">
+                <label name="Project" class="control-label">Project</label>
+                <input name="Project" class="form-control" @bind="comment.CustProject" />
+            </div>
+
+            <div class="form-group">
+                <label name="Email" class="control-label">Email</label>
+                <input name="Email" class="form-control" @bind="comment.CustEmail" />
+            </div>
+
+            <div class="form-group">
+                <label name="Comment" class="control-label">Comment</label>
+                <input name="Comment" class="form-control" @bind="comment.CustComment" />
+            </div>
+
+            <div class="form-group">
+                <span class="text-muted small">@Status</span>
+            </div>
+
+            <div class="form-group">
+                <span class="text-muted small">Last Updated By: </span>
+                <span class="text-muted small">@comment.ModUser</span>
+            </div>
+
+            <div class="form-group">
+                <span class="text-muted small">Last Updated At: </span>
+                <span class="text-muted small">@comment.ModDate</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <button class="btn btn-primary" @onclick="Save">Save Comment</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+@code {
+    [Parameter]
+    public string WBS1 { get; set; }
+
+    private string Status { get; set; } = "";
+
+    private UDIC_Comment comment { get; set; } = new UDIC_Comment();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        comment = new UDIC_Comment();
+        comment.CustProject = WBS1;
+        comment.CustNumber = DateTime.Now.ToString("yyyyMMddhhmmss");
+        comment.CustName = $"Comment {comment.CustNumber}";
+    }
+
+    private async Task Save()
+    {
+        if (string.IsNullOrWhiteSpace(comment.CustNumber))
+        {
+            comment.CustNumber = DateTime.Now.ToString("yyyyMMddhhmmss");
+        }
+
+        if (string.IsNullOrWhiteSpace(comment.CustName))
+        {
+            comment.CustName = $"Comment {comment.CustNumber}";
+        }
+
+        comment.CreateDate = DateTime.Now;
+        comment.CreateUser = "API";
+        comment.ModDate = DateTime.Now;
+        comment.ModUser = "API";
+
+        var result =await APIService.postComment(comment);
+
+        if (result==false)
+        {
+            Status = "Error. No comment was saved";
+        }
+        else
+        {
+            Status = "Comment added successfully!";
+        }
+    }
+}
